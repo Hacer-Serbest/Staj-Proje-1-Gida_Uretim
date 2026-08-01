@@ -48,7 +48,10 @@ const changePassword = async (userId, currentPassword, newPassword) => {
 
   const isMatch = await bcrypt.compare(currentPassword, user.password_hash);
   if (!isMatch) {
-    throw new ApiError(401, 'Mevcut şifre hatalı.');
+    // 401 DEĞİL: kullanıcının oturum token'ı geçerli, sadece girdiği mevcut şifre yanlış.
+    // 401 dönseydi frontend'deki global interceptor bunu "oturum geçersiz" sanıp kullanıcıyı
+    // otomatik olarak login'e atardı.
+    throw new ApiError(400, 'Mevcut şifre hatalı.');
   }
 
   const newHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
