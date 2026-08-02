@@ -26,7 +26,7 @@ const create = asyncHandler(async (req, res) => {
     throw new ApiError(409, 'Bu isimde bir hammadde zaten kayıtlı.');
   }
 
-  const material = await materialModel.create({ name, unit, currentStock, criticalStockLevel, unitPrice });
+  const material = await materialModel.create({ name, unit, criticalStockLevel, unitPrice });
 
   if (currentStock > 0) {
     await inventoryService.recordMovement({

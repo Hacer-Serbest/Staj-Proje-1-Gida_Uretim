@@ -1,11 +1,14 @@
 const { query } = require('../config/db');
 
-const create = async ({ name, unit, currentStock, criticalStockLevel, unitPrice }) => {
+// current_stock her zaman 0 ile başlar; açılış stoğu varsa çağıran taraf (material.controller)
+// bunu inventory_movements üzerinden ('initial' hareketiyle) uygular. Stok miktarının TEK
+// kaynağı hareketler olmalı — burada da set edilirse çift sayım olur.
+const create = async ({ name, unit, criticalStockLevel, unitPrice }) => {
   const { rows } = await query(
-    `INSERT INTO materials (name, unit, current_stock, critical_stock_level, unit_price)
-     VALUES ($1, $2, $3, $4, $5)
+    `INSERT INTO materials (name, unit, critical_stock_level, unit_price)
+     VALUES ($1, $2, $3, $4)
      RETURNING *`,
-    [name, unit, currentStock ?? 0, criticalStockLevel ?? 0, unitPrice ?? 0]
+    [name, unit, criticalStockLevel ?? 0, unitPrice ?? 0]
   );
   return rows[0];
 };
