@@ -33,3 +33,21 @@ export const ORDER_STATUS_BADGE_TONE = {
   delivered: 'success',
   cancelled: 'danger',
 };
+
+// backend/src/services/order.service.js ALLOWED_TRANSITIONS ile birebir aynı olmalı.
+export const ORDER_STATUS_TRANSITIONS = {
+  pending: ['confirmed', 'cancelled'],
+  confirmed: ['in_production', 'cancelled'],
+  in_production: ['ready', 'cancelled'],
+  ready: ['delivered', 'cancelled'],
+  delivered: [],
+  cancelled: [],
+};
+
+export const ORDER_STATUS_ACTION_LABELS = {
+  confirmed: 'Onayla',
+  in_production: 'Üretime Al',
+  ready: 'Hazır Olarak İşaretle',
+  delivered: 'Teslim Edildi Olarak İşaretle',
+  cancelled: 'İptal Et',
+};
