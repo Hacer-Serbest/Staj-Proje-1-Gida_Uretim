@@ -4,6 +4,18 @@
 
 @layer base {
   body {
-    @apply bg-brand-bg text-slate-800 antialiased;
+    @apply font-sans text-slate-800 antialiased;
+    background:
+      radial-gradient(1200px 600px at 90% -10%, rgba(199, 154, 189, 0.20), transparent 60%),
+      radial-gradient(900px 650px at 100% 60%, rgba(183, 171, 140, 0.20), transparent 55%),
+      radial-gradient(1000px 700px at -10% 110%, rgba(15, 36, 56, 0.14), transparent 55%),
+      linear-gradient(180deg, #c3d2e4 0%, #bbcbe0 45%, #b3c5dc 100%);
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+
+  ::selection {
+    background-color: rgba(8, 89, 124, 0.22);
+    color: #053f59;
   }
 }

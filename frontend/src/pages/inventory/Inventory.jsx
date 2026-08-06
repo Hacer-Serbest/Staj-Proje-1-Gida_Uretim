@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Plus, History, ArrowLeftRight, Pencil, Power, PackageOpen } from 'lucide-react';
 import * as materialApi from '../../api/material.api';
 import * as inventoryApi from '../../api/inventory.api';
 import useAuth from '../../hooks/useAuth';
@@ -8,6 +9,7 @@ import Select from '../../components/common/Select';
 import Badge from '../../components/common/Badge';
 import Spinner from '../../components/common/Spinner';
 import Modal from '../../components/common/Modal';
+import Card from '../../components/common/Card';
 import { UNITS, MOVEMENT_TYPE_LABELS, MOVEMENT_REASON_LABELS, MANUAL_MOVEMENT_REASONS, formatNumber, formatCurrency } from '../../utils/inventoryLabels';
 
 const emptyMaterialForm = { name: '', unit: 'kg', currentStock: '0', criticalStockLevel: '0', unitPrice: '0' };
@@ -171,16 +173,31 @@ const Inventory = () => {
           <h1 className="text-2xl font-bold text-brand-primary">Hammadde & Stok Yönetimi</h1>
           <p className="mt-1 text-sm text-slate-600">Hammadde listesi, stok hareketleri ve kritik stok takibi.</p>
         </div>
-        {canManage && <Button onClick={openCreateForm}>Yeni Hammadde</Button>}
+        {canManage && (
+          <Button onClick={openCreateForm} className="gap-1.5">
+            <Plus size={16} />
+            Yeni Hammadde
+          </Button>
+        )}
       </div>
 
-      <div className="mb-4 flex flex-wrap gap-4 text-sm text-slate-600">
-        <label className="flex items-center gap-2">
-          <input type="checkbox" checked={criticalOnly} onChange={(e) => setCriticalOnly(e.target.checked)} />
+      <div className="mb-4 flex flex-wrap gap-5 text-sm text-slate-600">
+        <label className="flex cursor-pointer items-center gap-2">
+          <input
+            type="checkbox"
+            checked={criticalOnly}
+            onChange={(e) => setCriticalOnly(e.target.checked)}
+            className="h-4 w-4 accent-brand-primary"
+          />
           Sadece kritik stoklar
         </label>
-        <label className="flex items-center gap-2">
-          <input type="checkbox" checked={showInactive} onChange={(e) => setShowInactive(e.target.checked)} />
+        <label className="flex cursor-pointer items-center gap-2">
+          <input
+            type="checkbox"
+            checked={showInactive}
+            onChange={(e) => setShowInactive(e.target.checked)}
+            className="h-4 w-4 accent-brand-primary"
+          />
           Pasif olanları da göster
         </label>
       </div>
@@ -188,7 +205,7 @@ const Inventory = () => {
       {showMaterialForm && (
         <form
           onSubmit={handleMaterialSubmit}
-          className="mb-6 grid grid-cols-1 gap-4 rounded-xl bg-white/70 p-5 shadow-sm sm:grid-cols-2 lg:grid-cols-5"
+          className="mb-6 grid animate-fade-slide-up grid-cols-1 gap-4 rounded-2xl bg-white p-5 shadow-soft-md sm:grid-cols-2 lg:grid-cols-5"
         >
           <Input
             id="name"
@@ -268,9 +285,12 @@ const Inventory = () => {
       ) : listError ? (
         <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{listError}</p>
       ) : materials.length === 0 ? (
-        <p className="text-sm text-slate-500">Kayıtlı hammadde yok.</p>
+        <Card className="flex flex-col items-center gap-2 p-10 text-center">
+          <PackageOpen size={28} className="text-brand-stone-dark/70" />
+          <p className="text-sm text-slate-500">Kayıtlı hammadde yok.</p>
+        </Card>
       ) : (
-        <div className="overflow-x-auto rounded-xl bg-white/70 shadow-sm">
+        <Card className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead className="border-b border-brand-primary/10 text-xs uppercase tracking-wide text-brand-primary/70">
               <tr>
@@ -286,7 +306,10 @@ const Inventory = () => {
               {materials.map((m) => {
                 const status = materialStatus(m);
                 return (
-                  <tr key={m.id} className="border-b border-brand-primary/5 last:border-0">
+                  <tr
+                    key={m.id}
+                    className="border-b border-brand-primary/5 transition-colors last:border-0 hover:bg-brand-primary/[0.03]"
+                  >
                     <td className="px-4 py-3 font-medium text-slate-800">{m.name}</td>
                     <td className="px-4 py-3 text-slate-600">
                       {formatNumber(m.current_stock)} {m.unit}
@@ -300,22 +323,38 @@ const Inventory = () => {
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex justify-end gap-2">
-                        <Button variant="outline" className="px-3 py-1 text-xs" onClick={() => openHistoryModal(m)}>
+                        <Button
+                          variant="outline"
+                          className="gap-1 px-3 py-1.5 text-xs"
+                          onClick={() => openHistoryModal(m)}
+                        >
+                          <History size={13} />
                           Geçmiş
                         </Button>
                         {canManage && (
                           <>
-                            <Button variant="outline" className="px-3 py-1 text-xs" onClick={() => openMovementModal(m)}>
+                            <Button
+                              variant="outline"
+                              className="gap-1 px-3 py-1.5 text-xs"
+                              onClick={() => openMovementModal(m)}
+                            >
+                              <ArrowLeftRight size={13} />
                               Stok Hareketi
                             </Button>
-                            <Button variant="outline" className="px-3 py-1 text-xs" onClick={() => openEditForm(m)}>
+                            <Button
+                              variant="outline"
+                              className="gap-1 px-3 py-1.5 text-xs"
+                              onClick={() => openEditForm(m)}
+                            >
+                              <Pencil size={13} />
                               Düzenle
                             </Button>
                             <Button
                               variant={m.is_active ? 'danger' : 'primary'}
-                              className="px-3 py-1 text-xs"
+                              className="gap-1 px-3 py-1.5 text-xs"
                               onClick={() => handleToggleActive(m)}
                             >
+                              <Power size={13} />
                               {m.is_active ? 'Pasifleştir' : 'Aktifleştir'}
                             </Button>
                           </>
@@ -327,7 +366,7 @@ const Inventory = () => {
               })}
             </tbody>
           </table>
-        </div>
+        </Card>
       )}
 
       <Modal isOpen={Boolean(movementMaterial)} onClose={() => setMovementMaterial(null)} title={`Stok Hareketi — ${movementMaterial?.name || ''}`}>

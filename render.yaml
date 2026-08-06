@@ -1,0 +1,35 @@
+services:
+  - type: web
+    name: gida-uretim-kontrol-backend
+    runtime: node
+    rootDir: backend
+    plan: free
+    region: frankfurt
+    buildCommand: npm install
+    startCommand: npm start
+    preDeployCommand: npm run migrate
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: gida-uretim-kontrol-db
+          property: connectionString
+      - key: PGSSL
+        value: "true"
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 8h
+      # Vercel'e deploy ettikten sonra gerçek frontend adresiyle Render
+      # dashboard'undan manuel güncellenmeli (örn. https://gida-uretim-kontrol.vercel.app).
+      - key: FRONTEND_ORIGIN
+        sync: false
+
+databases:
+  - name: gida-uretim-kontrol-db
+    plan: free
+    databaseName: gida_uretim_kontrol
+    user: gida_uretim_kontrol

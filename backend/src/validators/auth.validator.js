@@ -7,6 +7,8 @@ const registerSchema = z.object({
   email: z.string().trim().email('Geçerli bir e-posta adresi girin.').toLowerCase(),
   password: z.string().min(8, 'Şifre en az 8 karakter olmalı.').max(72),
   role: z.enum(ROLES).default('satis'),
+  phone: z.string().trim().max(30).optional(),
+  employeeId: z.string().trim().max(30).optional(),
 });
 
 const loginSchema = z.object({

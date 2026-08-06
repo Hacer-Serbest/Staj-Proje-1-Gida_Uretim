@@ -14,6 +14,8 @@ const updateUserSchema = z
     fullName: z.string().trim().min(2).max(120).optional(),
     role: z.enum(ROLES).optional(),
     isActive: z.boolean().optional(),
+    phone: z.string().trim().max(30).optional(),
+    employeeId: z.string().trim().max(30).optional(),
   })
   .refine((data) => Object.keys(data).length > 0, {
     message: 'Güncellenecek en az bir alan gönderilmeli.',

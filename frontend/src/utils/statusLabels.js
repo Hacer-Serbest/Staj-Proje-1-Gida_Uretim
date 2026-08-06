@@ -9,7 +9,7 @@ export const PRODUCTION_STATUS_ORDER = ['planned', 'in_progress', 'completed', '
 
 export const PRODUCTION_STATUS_BADGE_TONE = {
   planned: 'neutral',
-  in_progress: 'accent',
+  in_progress: 'maroon',
   completed: 'success',
   cancelled: 'danger',
 };
@@ -28,9 +28,9 @@ export const ORDER_STATUS_ORDER = ['pending', 'confirmed', 'in_production', 'rea
 export const ORDER_STATUS_BADGE_TONE = {
   pending: 'neutral',
   confirmed: 'primary',
-  in_production: 'accent',
+  in_production: 'plum',
   ready: 'primary',
-  delivered: 'success',
+  delivered: 'forest',
   cancelled: 'danger',
 };
 
@@ -51,3 +51,22 @@ export const ORDER_STATUS_ACTION_LABELS = {
   delivered: 'Teslim Edildi Olarak İşaretle',
   cancelled: 'İptal Et',
 };
+
+// components/common/Badge.jsx'teki DOT_CLASSES ile aynı renk ailesi — bu şekilde dashboard
+// grafiği ile tablo rozetleri her zaman aynı durumu aynı renkte gösterir (tek kaynak burası).
+const TONE_HEX = {
+  neutral: '#94a3b8',
+  primary: '#08597c',
+  accent: '#c79abd',
+  success: '#10b981',
+  danger: '#dc2626',
+  plum: '#7c3677',
+  forest: '#2e512c',
+  maroon: '#7e0108',
+};
+
+const toColorMap = (statusToneMap) =>
+  Object.fromEntries(Object.entries(statusToneMap).map(([status, tone]) => [status, TONE_HEX[tone]]));
+
+export const ORDER_STATUS_COLORS = toColorMap(ORDER_STATUS_BADGE_TONE);
+export const PRODUCTION_STATUS_COLORS = toColorMap(PRODUCTION_STATUS_BADGE_TONE);

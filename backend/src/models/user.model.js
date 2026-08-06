@@ -1,6 +1,6 @@
 const { query } = require('../config/db');
 
-const PUBLIC_COLUMNS = 'id, full_name, email, role, is_active, created_at, updated_at';
+const PUBLIC_COLUMNS = 'id, full_name, email, phone, employee_id, role, is_active, created_at, updated_at';
 
 const findByEmail = async (email) => {
   const { rows } = await query('SELECT * FROM users WHERE email = $1', [email]);
@@ -18,12 +18,17 @@ const findByIdWithPassword = async (id) => {
   return rows[0] || null;
 };
 
-const create = async ({ fullName, email, passwordHash, role }) => {
+const findByEmployeeId = async (employeeId) => {
+  const { rows } = await query('SELECT id FROM users WHERE employee_id = $1', [employeeId]);
+  return rows[0] || null;
+};
+
+const create = async ({ fullName, email, passwordHash, role, phone, employeeId }) => {
   const { rows } = await query(
-    `INSERT INTO users (full_name, email, password_hash, role)
-     VALUES ($1, $2, $3, $4)
+    `INSERT INTO users (full_name, email, password_hash, role, phone, employee_id)
+     VALUES ($1, $2, $3, $4, $5, $6)
      RETURNING ${PUBLIC_COLUMNS}`,
-    [fullName, email, passwordHash, role]
+    [fullName, email, passwordHash, role, phone || null, employeeId || null]
   );
   return rows[0];
 };
@@ -50,7 +55,7 @@ const list = async ({ role, isActive } = {}) => {
 };
 
 const update = async (id, fields) => {
-  const allowed = ['full_name', 'role', 'is_active'];
+  const allowed = ['full_name', 'role', 'is_active', 'phone', 'employee_id'];
   const setClauses = [];
   const params = [];
 
@@ -77,4 +82,13 @@ const updatePassword = async (id, passwordHash) => {
   await query('UPDATE users SET password_hash = $1 WHERE id = $2', [passwordHash, id]);
 };
 
-module.exports = { findByEmail, findById, findByIdWithPassword, create, list, update, updatePassword };
+module.exports = {
+  findByEmail,
+  findById,
+  findByIdWithPassword,
+  findByEmployeeId,
+  create,
+  list,
+  update,
+  updatePassword,
+};

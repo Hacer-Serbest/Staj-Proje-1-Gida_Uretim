@@ -9,14 +9,21 @@ const SALT_ROUNDS = 10;
 const generateToken = (user) =>
   jwt.sign({ id: user.id, role: user.role }, env.jwtSecret, { expiresIn: env.jwtExpiresIn });
 
-const register = async ({ fullName, email, password, role }) => {
+const register = async ({ fullName, email, password, role, phone, employeeId }) => {
   const existing = await userModel.findByEmail(email);
   if (existing) {
     throw new ApiError(409, 'Bu e-posta adresi zaten kayıtlı.');
   }
 
+  if (employeeId) {
+    const existingEmployeeId = await userModel.findByEmployeeId(employeeId);
+    if (existingEmployeeId) {
+      throw new ApiError(409, 'Bu çalışan kimlik numarası zaten kayıtlı.');
+    }
+  }
+
   const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
-  const user = await userModel.create({ fullName, email, passwordHash, role });
+  const user = await userModel.create({ fullName, email, passwordHash, role, phone, employeeId });
 
   return { user, token: generateToken(user) };
 };

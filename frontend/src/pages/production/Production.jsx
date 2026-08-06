@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Plus, Pencil, Power, FlaskConical, Play, CheckCircle2, XCircle, ClipboardX, X } from 'lucide-react';
 import * as productApi from '../../api/product.api';
 import * as materialApi from '../../api/material.api';
 import * as productionApi from '../../api/production.api';
@@ -9,6 +10,7 @@ import Select from '../../components/common/Select';
 import Badge from '../../components/common/Badge';
 import Spinner from '../../components/common/Spinner';
 import Modal from '../../components/common/Modal';
+import Card from '../../components/common/Card';
 import { UNITS, formatNumber, formatCurrency } from '../../utils/inventoryLabels';
 import { PRODUCTION_STATUS_LABELS, PRODUCTION_STATUS_ORDER, PRODUCTION_STATUS_BADGE_TONE } from '../../utils/statusLabels';
 
@@ -35,16 +37,16 @@ const Production = () => {
         <p className="mt-1 text-sm text-slate-600">Ürün/reçete yönetimi ve üretim emri takibi.</p>
       </div>
 
-      <div className="mb-6 flex gap-1 border-b border-brand-primary/15">
+      <div className="mb-6 inline-flex gap-1 rounded-xl bg-white/70 p-1 shadow-soft-sm">
         {TABS.map((tab) => (
           <button
             key={tab.key}
             type="button"
             onClick={() => setActiveTab(tab.key)}
-            className={`px-4 py-2 text-sm font-medium transition-colors ${
+            className={`rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-200 ${
               activeTab === tab.key
-                ? 'border-b-2 border-brand-primary text-brand-primary'
-                : 'text-slate-500 hover:text-brand-primary'
+                ? 'bg-brand-primary text-white shadow-soft-sm'
+                : 'text-brand-primary/70 hover:bg-brand-primary/8 hover:text-brand-primary'
             }`}
           >
             {tab.label}
@@ -52,7 +54,14 @@ const Production = () => {
         ))}
       </div>
 
-      {activeTab === 'products' ? <ProductsPanel canManage={canManage} /> : <OrdersPanel canManage={canManage} />}
+      {/* Her iki panel de mount'lu kalır; sekme değişiminde veri yeniden çekilmez ve
+          yükleniyor spinner'ı yanıp sönmez — geçiş salt CSS ile, pürüzsüz olur. */}
+      <div className={activeTab === 'products' ? 'animate-fade-in' : 'hidden'}>
+        <ProductsPanel canManage={canManage} />
+      </div>
+      <div className={activeTab === 'orders' ? 'animate-fade-in' : 'hidden'}>
+        <OrdersPanel canManage={canManage} />
+      </div>
     </div>
   );
 };
@@ -202,13 +211,18 @@ const ProductsPanel = ({ canManage }) => {
   return (
     <div>
       <div className="mb-4 flex justify-end">
-        {canManage && <Button onClick={openCreateForm}>Yeni Ürün</Button>}
+        {canManage && (
+          <Button onClick={openCreateForm} className="gap-1.5">
+            <Plus size={16} />
+            Yeni Ürün
+          </Button>
+        )}
       </div>
 
       {showForm && (
         <form
           onSubmit={handleSubmit}
-          className="mb-6 grid grid-cols-1 gap-4 rounded-xl bg-white/70 p-5 shadow-sm sm:grid-cols-2 lg:grid-cols-5"
+          className="mb-6 grid animate-fade-slide-up grid-cols-1 gap-4 rounded-2xl bg-white p-5 shadow-soft-md sm:grid-cols-2 lg:grid-cols-5"
         >
           <Input
             id="name"
@@ -270,9 +284,12 @@ const ProductsPanel = ({ canManage }) => {
       ) : listError ? (
         <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{listError}</p>
       ) : products.length === 0 ? (
-        <p className="text-sm text-slate-500">Kayıtlı ürün yok.</p>
+        <Card className="flex flex-col items-center gap-2 p-10 text-center">
+          <ClipboardX size={28} className="text-brand-stone-dark/70" />
+          <p className="text-sm text-slate-500">Kayıtlı ürün yok.</p>
+        </Card>
       ) : (
-        <div className="overflow-x-auto rounded-xl bg-white/70 shadow-sm">
+        <Card className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead className="border-b border-brand-primary/10 text-xs uppercase tracking-wide text-brand-primary/70">
               <tr>
@@ -285,7 +302,10 @@ const ProductsPanel = ({ canManage }) => {
             </thead>
             <tbody>
               {products.map((p) => (
-                <tr key={p.id} className="border-b border-brand-primary/5 last:border-0">
+                <tr
+                  key={p.id}
+                  className="border-b border-brand-primary/5 transition-colors last:border-0 hover:bg-brand-primary/[0.03]"
+                >
                   <td className="px-4 py-3 font-medium text-slate-800">{p.name}</td>
                   <td className="px-4 py-3 text-slate-600">{p.sku}</td>
                   <td className="px-4 py-3 text-slate-600">
@@ -296,19 +316,22 @@ const ProductsPanel = ({ canManage }) => {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex justify-end gap-2">
-                      <Button variant="outline" className="px-3 py-1 text-xs" onClick={() => openRecipeModal(p)}>
+                      <Button variant="outline" className="gap-1 px-3 py-1.5 text-xs" onClick={() => openRecipeModal(p)}>
+                        <FlaskConical size={13} />
                         Reçete
                       </Button>
                       {canManage && (
                         <>
-                          <Button variant="outline" className="px-3 py-1 text-xs" onClick={() => openEditForm(p)}>
+                          <Button variant="outline" className="gap-1 px-3 py-1.5 text-xs" onClick={() => openEditForm(p)}>
+                            <Pencil size={13} />
                             Düzenle
                           </Button>
                           <Button
                             variant={p.is_active ? 'danger' : 'primary'}
-                            className="px-3 py-1 text-xs"
+                            className="gap-1 px-3 py-1.5 text-xs"
                             onClick={() => handleToggleActive(p)}
                           >
+                            <Power size={13} />
                             {p.is_active ? 'Pasifleştir' : 'Aktifleştir'}
                           </Button>
                         </>
@@ -319,7 +342,7 @@ const ProductsPanel = ({ canManage }) => {
               ))}
             </tbody>
           </table>
-        </div>
+        </Card>
       )}
 
       <Modal isOpen={Boolean(recipeProduct)} onClose={() => setRecipeProduct(null)} title={`Reçete — ${recipeProduct?.name || ''}`}>
@@ -365,10 +388,10 @@ const ProductsPanel = ({ canManage }) => {
                     <button
                       type="button"
                       onClick={() => removeRecipeRow(index)}
-                      className="mb-2 text-slate-400 hover:text-red-600"
+                      className="mb-2 rounded-lg p-2 text-slate-400 transition-colors duration-150 hover:bg-red-50 hover:text-red-600"
                       aria-label="Satırı sil"
                     >
-                      ✕
+                      <X size={16} />
                     </button>
                   )}
                 </div>
@@ -376,8 +399,9 @@ const ProductsPanel = ({ canManage }) => {
             })}
 
             {canManage && (
-              <Button type="button" variant="outline" onClick={addRecipeRow} className="self-start">
-                + Satır Ekle
+              <Button type="button" variant="outline" onClick={addRecipeRow} className="gap-1.5 self-start">
+                <Plus size={15} />
+                Satır Ekle
               </Button>
             )}
 
@@ -515,13 +539,18 @@ const OrdersPanel = ({ canManage }) => {
             </option>
           ))}
         </Select>
-        {canManage && <Button onClick={openCreateForm}>Yeni Üretim Emri</Button>}
+        {canManage && (
+          <Button onClick={openCreateForm} className="gap-1.5">
+            <Plus size={16} />
+            Yeni Üretim Emri
+          </Button>
+        )}
       </div>
 
       {showForm && (
         <form
           onSubmit={handleSubmit}
-          className="mb-6 grid grid-cols-1 gap-4 rounded-xl bg-white/70 p-5 shadow-sm sm:grid-cols-2 lg:grid-cols-5"
+          className="mb-6 grid animate-fade-slide-up grid-cols-1 gap-4 rounded-2xl bg-white p-5 shadow-soft-md sm:grid-cols-2 lg:grid-cols-5"
         >
           <Select
             id="productId"
@@ -588,9 +617,12 @@ const OrdersPanel = ({ canManage }) => {
       ) : listError ? (
         <p className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{listError}</p>
       ) : orders.length === 0 ? (
-        <p className="text-sm text-slate-500">Kayıtlı üretim emri yok.</p>
+        <Card className="flex flex-col items-center gap-2 p-10 text-center">
+          <ClipboardX size={28} className="text-brand-stone-dark/70" />
+          <p className="text-sm text-slate-500">Kayıtlı üretim emri yok.</p>
+        </Card>
       ) : (
-        <div className="overflow-x-auto rounded-xl bg-white/70 shadow-sm">
+        <Card className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead className="border-b border-brand-primary/10 text-xs uppercase tracking-wide text-brand-primary/70">
               <tr>
@@ -605,7 +637,10 @@ const OrdersPanel = ({ canManage }) => {
             </thead>
             <tbody>
               {orders.map((o) => (
-                <tr key={o.id} className="border-b border-brand-primary/5 last:border-0">
+                <tr
+                  key={o.id}
+                  className="border-b border-brand-primary/5 transition-colors last:border-0 hover:bg-brand-primary/[0.03]"
+                >
                   <td className="px-4 py-3 font-medium text-slate-800">{o.order_number}</td>
                   <td className="px-4 py-3 text-slate-600">{o.product_name}</td>
                   <td className="px-4 py-3 text-slate-600">
@@ -624,30 +659,33 @@ const OrdersPanel = ({ canManage }) => {
                         {o.status === 'planned' && (
                           <Button
                             variant="outline"
-                            className="px-3 py-1 text-xs"
+                            className="gap-1 px-3 py-1.5 text-xs"
                             disabled={pendingOrderId === o.id}
                             onClick={() => handleStart(o)}
                           >
+                            <Play size={13} />
                             Başlat
                           </Button>
                         )}
                         {o.status === 'in_progress' && (
                           <Button
                             variant="outline"
-                            className="px-3 py-1 text-xs"
+                            className="gap-1 px-3 py-1.5 text-xs"
                             disabled={pendingOrderId === o.id}
                             onClick={() => openCompleteModal(o)}
                           >
+                            <CheckCircle2 size={13} />
                             Tamamla
                           </Button>
                         )}
                         {(o.status === 'planned' || o.status === 'in_progress') && (
                           <Button
                             variant="danger"
-                            className="px-3 py-1 text-xs"
+                            className="gap-1 px-3 py-1.5 text-xs"
                             disabled={pendingOrderId === o.id}
                             onClick={() => handleCancel(o)}
                           >
+                            <XCircle size={13} />
                             İptal
                           </Button>
                         )}
@@ -658,7 +696,7 @@ const OrdersPanel = ({ canManage }) => {
               ))}
             </tbody>
           </table>
-        </div>
+        </Card>
       )}
 
       <Modal isOpen={Boolean(completingOrder)} onClose={() => setCompletingOrder(null)} title={`Üretimi Tamamla — ${completingOrder?.order_number || ''}`}>

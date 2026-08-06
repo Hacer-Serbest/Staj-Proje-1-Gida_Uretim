@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Plus, Search, Pencil, Power, Eye, Users2, ShoppingBag, X } from 'lucide-react';
 import * as customerApi from '../../api/customer.api';
 import * as productApi from '../../api/product.api';
 import * as orderApi from '../../api/order.api';
@@ -9,6 +10,7 @@ import Select from '../../components/common/Select';
 import Badge from '../../components/common/Badge';
 import Spinner from '../../components/common/Spinner';
 import Modal from '../../components/common/Modal';
+import Card from '../../components/common/Card';
 import { formatNumber, formatCurrency } from '../../utils/inventoryLabels';
 import {
   ORDER_STATUS_LABELS,
@@ -44,16 +46,16 @@ const Orders = () => {
         <p className="mt-1 text-sm text-slate-600">Müşteri yönetimi ve sipariş takibi.</p>
       </div>
 
-      <div className="mb-6 flex gap-1 border-b border-brand-primary/15">
+      <div className="mb-6 inline-flex gap-1 rounded-xl bg-white/70 p-1 shadow-soft-sm">
         {TABS.map((tab) => (
           <button
             key={tab.key}
             type="button"
             onClick={() => setActiveTab(tab.key)}
-            className={`px-4 py-2 text-sm font-medium transition-colors ${
+            className={`rounded-lg px-4 py-2 text-sm font-semibold transition-all duration-200 ${
               activeTab === tab.key
-                ? 'border-b-2 border-brand-primary text-brand-primary'
-                : 'text-slate-500 hover:text-brand-primary'
+                ? 'bg-brand-primary text-white shadow-soft-sm'
+                : 'text-brand-primary/70 hover:bg-brand-primary/8 hover:text-brand-primary'
             }`}
           >
             {tab.label}
@@ -61,11 +63,14 @@ const Orders = () => {
         ))}
       </div>
 
-      {activeTab === 'customers' ? (
+      {/* Her iki panel de mount'lu kalır; sekme değişiminde veri yeniden çekilmez ve
+          yükleniyor spinner'ı yanıp sönmez — geçiş salt CSS ile, pürüzsüz olur. */}
+      <div className={activeTab === 'customers' ? 'animate-fade-in' : 'hidden'}>
         <CustomersPanel canManage={canManageCustomers} />
-      ) : (
+      </div>
+      <div className={activeTab === 'orders' ? 'animate-fade-in' : 'hidden'}>
         <OrdersPanel canCreate={canCreateOrder} canUpdateStatus={canUpdateStatus} />
-      )}
+      </div>
     </div>
   );
 };
@@ -163,18 +168,24 @@ const CustomersPanel = ({ canManage }) => {
     <div>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <Input
+          icon={Search}
           placeholder="Müşteri adına göre ara..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="w-64"
         />
-        {canManage && <Button onClick={openCreateForm}>Yeni Müşteri</Button>}
+        {canManage && (
+          <Button onClick={openCreateForm} className="gap-1.5">
+            <Plus size={16} />
+            Yeni Müşteri
+          </Button>
+        )}
       </div>
 
       {showForm && (
         <form
           onSubmit={handleSubmit}
-          className="mb-6 grid grid-cols-1 gap-4 rounded-xl bg-white/70 p-5 shadow-sm sm:grid-cols-2 lg:grid-cols-3"
+          className="mb-6 grid animate-fade-slide-up grid-cols-1 gap-4 rounded-2xl bg-white p-5 shadow-soft-md sm:grid-cols-2 lg:grid-cols-3"
         >
           <Input
             id="name"
@@ -241,9 +252,12 @@ const CustomersPanel = ({ canManage }) => {
       ) : listError ? (
         <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{listError}</p>
       ) : customers.length === 0 ? (
-        <p className="text-sm text-slate-500">Kayıtlı müşteri yok.</p>
+        <Card className="flex flex-col items-center gap-2 p-10 text-center">
+          <Users2 size={28} className="text-brand-stone-dark/70" />
+          <p className="text-sm text-slate-500">Kayıtlı müşteri yok.</p>
+        </Card>
       ) : (
-        <div className="overflow-x-auto rounded-xl bg-white/70 shadow-sm">
+        <Card className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead className="border-b border-brand-primary/10 text-xs uppercase tracking-wide text-brand-primary/70">
               <tr>
@@ -257,7 +271,10 @@ const CustomersPanel = ({ canManage }) => {
             </thead>
             <tbody>
               {customers.map((c) => (
-                <tr key={c.id} className="border-b border-brand-primary/5 last:border-0">
+                <tr
+                  key={c.id}
+                  className="border-b border-brand-primary/5 transition-colors last:border-0 hover:bg-brand-primary/[0.03]"
+                >
                   <td className="px-4 py-3 font-medium text-slate-800">{c.name}</td>
                   <td className="px-4 py-3 text-slate-600">{c.contact_name || '—'}</td>
                   <td className="px-4 py-3 text-slate-600">{c.email || '—'}</td>
@@ -268,14 +285,16 @@ const CustomersPanel = ({ canManage }) => {
                   <td className="px-4 py-3">
                     {canManage && (
                       <div className="flex justify-end gap-2">
-                        <Button variant="outline" className="px-3 py-1 text-xs" onClick={() => openEditForm(c)}>
+                        <Button variant="outline" className="gap-1 px-3 py-1.5 text-xs" onClick={() => openEditForm(c)}>
+                          <Pencil size={13} />
                           Düzenle
                         </Button>
                         <Button
                           variant={c.is_active ? 'danger' : 'primary'}
-                          className="px-3 py-1 text-xs"
+                          className="gap-1 px-3 py-1.5 text-xs"
                           onClick={() => handleToggleActive(c)}
                         >
+                          <Power size={13} />
                           {c.is_active ? 'Pasifleştir' : 'Aktifleştir'}
                         </Button>
                       </div>
@@ -285,7 +304,7 @@ const CustomersPanel = ({ canManage }) => {
               ))}
             </tbody>
           </table>
-        </div>
+        </Card>
       )}
     </div>
   );
@@ -419,11 +438,19 @@ const OrdersPanel = ({ canCreate, canUpdateStatus }) => {
             </option>
           ))}
         </Select>
-        {canCreate && <Button onClick={openCreateForm}>Yeni Sipariş</Button>}
+        {canCreate && (
+          <Button onClick={openCreateForm} className="gap-1.5">
+            <Plus size={16} />
+            Yeni Sipariş
+          </Button>
+        )}
       </div>
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="mb-6 flex flex-col gap-4 rounded-xl bg-white/70 p-5 shadow-sm">
+        <form
+          onSubmit={handleSubmit}
+          className="mb-6 flex animate-fade-slide-up flex-col gap-4 rounded-2xl bg-white p-5 shadow-soft-md"
+        >
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <Select
               id="customerId"
@@ -498,17 +525,18 @@ const OrdersPanel = ({ canCreate, canUpdateStatus }) => {
                     <button
                       type="button"
                       onClick={() => removeItemRow(index)}
-                      className="mb-2 text-slate-400 hover:text-red-600"
+                      className="mb-2 rounded-lg p-2 text-slate-400 transition-colors duration-150 hover:bg-red-50 hover:text-red-600"
                       aria-label="Satırı sil"
                     >
-                      ✕
+                      <X size={16} />
                     </button>
                   )}
                 </div>
               ))}
             </div>
-            <Button type="button" variant="outline" onClick={addItemRow} className="mt-2">
-              + Ürün Ekle
+            <Button type="button" variant="outline" onClick={addItemRow} className="mt-2 gap-1.5">
+              <Plus size={15} />
+              Ürün Ekle
             </Button>
           </div>
 
@@ -532,9 +560,12 @@ const OrdersPanel = ({ canCreate, canUpdateStatus }) => {
       ) : listError ? (
         <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{listError}</p>
       ) : orders.length === 0 ? (
-        <p className="text-sm text-slate-500">Kayıtlı sipariş yok.</p>
+        <Card className="flex flex-col items-center gap-2 p-10 text-center">
+          <ShoppingBag size={28} className="text-brand-stone-dark/70" />
+          <p className="text-sm text-slate-500">Kayıtlı sipariş yok.</p>
+        </Card>
       ) : (
-        <div className="overflow-x-auto rounded-xl bg-white/70 shadow-sm">
+        <Card className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead className="border-b border-brand-primary/10 text-xs uppercase tracking-wide text-brand-primary/70">
               <tr>
@@ -548,7 +579,10 @@ const OrdersPanel = ({ canCreate, canUpdateStatus }) => {
             </thead>
             <tbody>
               {orders.map((o) => (
-                <tr key={o.id} className="border-b border-brand-primary/5 last:border-0">
+                <tr
+                  key={o.id}
+                  className="border-b border-brand-primary/5 transition-colors last:border-0 hover:bg-brand-primary/[0.03]"
+                >
                   <td className="px-4 py-3 font-medium text-slate-800">{o.order_number}</td>
                   <td className="px-4 py-3 text-slate-600">{o.customer_name}</td>
                   <td className="px-4 py-3 text-slate-600">{formatDate(o.order_date)}</td>
@@ -557,7 +591,8 @@ const OrdersPanel = ({ canCreate, canUpdateStatus }) => {
                     <Badge tone={ORDER_STATUS_BADGE_TONE[o.status]}>{ORDER_STATUS_LABELS[o.status]}</Badge>
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <Button variant="outline" className="px-3 py-1 text-xs" onClick={() => openDetail(o)}>
+                    <Button variant="outline" className="gap-1 px-3 py-1.5 text-xs" onClick={() => openDetail(o)}>
+                      <Eye size={13} />
                       Detay
                     </Button>
                   </td>
@@ -565,7 +600,7 @@ const OrdersPanel = ({ canCreate, canUpdateStatus }) => {
               ))}
             </tbody>
           </table>
-        </div>
+        </Card>
       )}
 
       <Modal isOpen={Boolean(detailOrder)} onClose={() => setDetailOrder(null)} title={`Sipariş — ${detailOrder?.order_number || ''}`}>

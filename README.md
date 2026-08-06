@@ -42,3 +42,7 @@ npm run dev
 ## Ortam Değişkenleri
 
 Her iki dizindeki `.env.example` dosyalarına bakın.
+
+## Deployment
+
+Adım adım Render/Vercel kurulumu ve canlıya alma kontrol listesi için [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) dosyasına bakın.

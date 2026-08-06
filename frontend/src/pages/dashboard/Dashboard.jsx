@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { Package, AlertTriangle, Factory, ShoppingCart } from 'lucide-react';
 import * as materialApi from '../../api/material.api';
 import * as productionApi from '../../api/production.api';
 import * as orderApi from '../../api/order.api';
@@ -8,24 +9,34 @@ import StackedStatusBar from '../../components/charts/StackedStatusBar';
 import MeterRow from '../../components/charts/MeterRow';
 import Badge from '../../components/common/Badge';
 import Spinner from '../../components/common/Spinner';
-import { CATEGORICAL } from '../../utils/chartPalette';
+import Card from '../../components/common/Card';
 import {
   PRODUCTION_STATUS_LABELS,
   PRODUCTION_STATUS_ORDER,
+  PRODUCTION_STATUS_COLORS,
   ORDER_STATUS_LABELS,
   ORDER_STATUS_ORDER,
+  ORDER_STATUS_COLORS,
   ORDER_STATUS_BADGE_TONE,
 } from '../../utils/statusLabels';
 
 const dateFormatter = new Intl.DateTimeFormat('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' });
 const formatDate = (value) => (value ? dateFormatter.format(new Date(value)) : '—');
 
-const statusSegments = (items, statusOrder, statusLabels) =>
-  statusOrder.map((status, i) => ({
+const greeting = () => {
+  const hour = new Date().getHours();
+  if (hour < 6) return 'İyi geceler';
+  if (hour < 12) return 'Günaydın';
+  if (hour < 18) return 'İyi günler';
+  return 'İyi akşamlar';
+};
+
+const statusSegments = (items, statusOrder, statusLabels, statusColors) =>
+  statusOrder.map((status) => ({
     key: status,
     label: statusLabels[status],
     count: items.filter((item) => item.status === status).length,
-    color: CATEGORICAL[i],
+    color: statusColors[status],
   }));
 
 const Dashboard = () => {
@@ -75,11 +86,11 @@ const Dashboard = () => {
   const pendingOrders = useMemo(() => orders.filter((o) => o.status === 'pending'), [orders]);
 
   const productionSegments = useMemo(
-    () => statusSegments(productionOrders, PRODUCTION_STATUS_ORDER, PRODUCTION_STATUS_LABELS),
+    () => statusSegments(productionOrders, PRODUCTION_STATUS_ORDER, PRODUCTION_STATUS_LABELS, PRODUCTION_STATUS_COLORS),
     [productionOrders]
   );
   const orderSegments = useMemo(
-    () => statusSegments(orders, ORDER_STATUS_ORDER, ORDER_STATUS_LABELS),
+    () => statusSegments(orders, ORDER_STATUS_ORDER, ORDER_STATUS_LABELS, ORDER_STATUS_COLORS),
     [orders]
   );
 
@@ -102,28 +113,47 @@ const Dashboard = () => {
   }
 
   if (error) {
-    return <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>;
+    return <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>;
   }
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-brand-primary">Merhaba, {user?.full_name}</h1>
-      <p className="mt-1 text-sm text-slate-600">Üretim, stok ve sipariş durumunun genel özeti.</p>
+      <h1 className="text-2xl font-bold text-brand-primary">
+        {greeting()}, {user?.full_name?.split(' ')[0]}
+      </h1>
+      <p className="mt-1 text-sm text-slate-600">İşte bugün işletmende neler oluyor.</p>
 
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatTile label="Toplam Hammadde" value={materials.length} hint="Aktif hammadde kalemi" />
+        <StatTile
+          label="Toplam Hammadde"
+          value={materials.length}
+          hint="Aktif hammadde kalemi"
+          icon={Package}
+        />
         <StatTile
           label="Kritik Stok"
           value={criticalMaterials.length}
           tone={criticalMaterials.length > 0 ? 'critical' : 'neutral'}
           hint="Kritik seviyenin altında/eşiğinde"
+          icon={AlertTriangle}
         />
-        <StatTile label="Aktif Üretim" value={inProgressProduction.length} hint="Devam eden üretim emri" />
-        <StatTile label="Bekleyen Sipariş" value={pendingOrders.length} hint="Onay bekleyen B2B sipariş" />
+        <StatTile
+          label="Aktif Üretim"
+          value={inProgressProduction.length}
+          hint="Devam eden üretim emri"
+          icon={Factory}
+          tone="navy"
+        />
+        <StatTile
+          label="Bekleyen Sipariş"
+          value={pendingOrders.length}
+          hint="Onay bekleyen B2B sipariş"
+          icon={ShoppingCart}
+        />
       </div>
 
       <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <div className="rounded-xl bg-white/70 p-5 shadow-sm">
+        <Card className="p-5">
           <h2 className="text-sm font-semibold text-slate-700">Kritik Stok Seviyesi</h2>
           {sortedCriticalMaterials.length === 0 ? (
             <p className="mt-3 text-sm text-slate-500">Kritik seviyede hammadde yok.</p>
@@ -140,25 +170,25 @@ const Dashboard = () => {
               ))}
             </div>
           )}
-        </div>
+        </Card>
 
-        <div className="rounded-xl bg-white/70 p-5 shadow-sm">
+        <Card className="p-5">
           <h2 className="text-sm font-semibold text-slate-700">Üretim Emirleri Durumu</h2>
           <div className="mt-4">
             <StackedStatusBar segments={productionSegments} emptyLabel="Henüz üretim emri yok." />
           </div>
-        </div>
+        </Card>
 
-        <div className="rounded-xl bg-white/70 p-5 shadow-sm">
+        <Card className="p-5">
           <h2 className="text-sm font-semibold text-slate-700">Sipariş Durumu</h2>
           <div className="mt-4">
             <StackedStatusBar segments={orderSegments} emptyLabel="Henüz sipariş yok." />
           </div>
-        </div>
+        </Card>
       </div>
 
       <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <div className="rounded-xl bg-white/70 p-5 shadow-sm">
+        <Card className="p-5">
           <h2 className="text-sm font-semibold text-slate-700">Aktif Üretimler</h2>
           {inProgressProduction.length === 0 ? (
             <p className="mt-3 text-sm text-slate-500">Şu anda devam eden üretim emri yok.</p>
@@ -184,9 +214,9 @@ const Dashboard = () => {
               </tbody>
             </table>
           )}
-        </div>
+        </Card>
 
-        <div className="rounded-xl bg-white/70 p-5 shadow-sm">
+        <Card className="p-5">
           <h2 className="text-sm font-semibold text-slate-700">Bekleyen Siparişler</h2>
           {pendingOrders.length === 0 ? (
             <p className="mt-3 text-sm text-slate-500">Bekleyen sipariş yok.</p>
@@ -214,7 +244,7 @@ const Dashboard = () => {
               </tbody>
             </table>
           )}
-        </div>
+        </Card>
       </div>
     </div>
   );

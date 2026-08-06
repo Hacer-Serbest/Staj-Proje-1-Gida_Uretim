@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Mail, Lock, Wheat, AlertCircle } from 'lucide-react';
 import useAuth from '../../hooks/useAuth';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
+import Card from '../../components/common/Card';
 
 const Login = () => {
   const { login, isAuthenticated } = useAuth();
@@ -35,10 +37,16 @@ const Login = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-brand-bg px-4">
-      <div className="w-full max-w-sm rounded-2xl bg-white/80 p-8 shadow-lg backdrop-blur-sm">
-        <div className="mb-6 text-center">
-          <p className="text-xs font-semibold uppercase tracking-wide text-brand-primary/70">Gıda Üretim</p>
+    <div className="flex min-h-screen items-center justify-center px-4">
+      <Card className="w-full max-w-sm animate-fade-slide-up p-8">
+        <div className="mb-6 flex flex-col items-center text-center">
+          <span
+            className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl text-white shadow-soft-sm"
+            style={{ background: 'linear-gradient(135deg, #0f2438 0%, #0f2438 60%, #b7ab8c 100%)' }}
+          >
+            <Wheat size={22} />
+          </span>
+          <p className="text-xs font-semibold uppercase tracking-wide text-brand-primary/60">Gıda Üretim</p>
           <h1 className="text-xl font-bold text-brand-primary">Kontrol Sistemine Giriş</h1>
         </div>
 
@@ -47,6 +55,7 @@ const Login = () => {
             id="email"
             label="E-posta"
             type="email"
+            icon={Mail}
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -58,6 +67,7 @@ const Login = () => {
             id="password"
             label="Şifre"
             type="password"
+            icon={Lock}
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -66,7 +76,8 @@ const Login = () => {
           />
 
           {error && (
-            <p role="alert" className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">
+            <p role="alert" className="flex items-center gap-2 rounded-xl bg-red-50 px-3.5 py-2.5 text-sm text-red-700">
+              <AlertCircle size={16} className="shrink-0" />
               {error}
             </p>
           )}
@@ -75,7 +86,7 @@ const Login = () => {
             {isSubmitting ? 'Giriş yapılıyor...' : 'Giriş Yap'}
           </Button>
         </form>
-      </div>
+      </Card>
     </div>
   );
 };

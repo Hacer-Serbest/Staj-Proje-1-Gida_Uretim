@@ -9,6 +9,7 @@ import Production from '../pages/production/Production';
 import Orders from '../pages/orders/Orders';
 import Users from '../pages/users/Users';
 import ChangePassword from '../pages/account/ChangePassword';
+import Reports from '../pages/reports/Reports';
 
 const AppRoutes = () => (
   <Routes>
@@ -20,6 +21,7 @@ const AppRoutes = () => (
         <Route path="/inventory" element={<Inventory />} />
         <Route path="/production" element={<Production />} />
         <Route path="/orders" element={<Orders />} />
+        <Route path="/reports" element={<Reports />} />
         <Route path="/account" element={<ChangePassword />} />
 
         <Route element={<RoleRoute allow={['admin']} />}>
