@@ -232,7 +232,7 @@ const Inventory = () => {
               id="currentStock"
               label="Açılış Stoğu"
               type="number"
-              step="0.001"
+              step="any"
               min="0"
               value={materialForm.currentStock}
               onChange={(e) => setMaterialForm({ ...materialForm, currentStock: e.target.value })}
@@ -243,7 +243,7 @@ const Inventory = () => {
             id="criticalStockLevel"
             label="Kritik Seviye"
             type="number"
-            step="0.001"
+            step="any"
             min="0"
             value={materialForm.criticalStockLevel}
             onChange={(e) => setMaterialForm({ ...materialForm, criticalStockLevel: e.target.value })}
@@ -253,7 +253,7 @@ const Inventory = () => {
             id="unitPrice"
             label="Birim Fiyat (₺)"
             type="number"
-            step="0.01"
+            step="any"
             min="0"
             value={materialForm.unitPrice}
             onChange={(e) => setMaterialForm({ ...materialForm, unitPrice: e.target.value })}
@@ -390,7 +390,7 @@ const Inventory = () => {
             id="quantity"
             label={`Miktar (${movementMaterial?.unit || ''})`}
             type="number"
-            step="0.001"
+            step="any"
             min="0.001"
             required
             value={movementForm.quantity}

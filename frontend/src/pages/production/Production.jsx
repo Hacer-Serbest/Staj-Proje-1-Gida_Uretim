@@ -251,7 +251,7 @@ const ProductsPanel = ({ canManage }) => {
             id="salePrice"
             label="Satış Fiyatı (₺)"
             type="number"
-            step="0.01"
+            step="any"
             min="0"
             value={form.salePrice}
             onChange={(e) => setForm({ ...form, salePrice: e.target.value })}
@@ -377,7 +377,7 @@ const ProductsPanel = ({ canManage }) => {
                     <Input
                       label={index === 0 ? `Miktar${selectedMaterial ? ` (${selectedMaterial.unit})` : ''}` : undefined}
                       type="number"
-                      step="0.0001"
+                      step="any"
                       min="0.0001"
                       value={item.quantityRequired}
                       onChange={(e) => updateRecipeItem(index, 'quantityRequired', e.target.value)}
@@ -570,7 +570,7 @@ const OrdersPanel = ({ canManage }) => {
             id="plannedQuantity"
             label="Planlanan Miktar"
             type="number"
-            step="0.001"
+            step="any"
             min="0.001"
             required
             value={form.plannedQuantity}
@@ -708,7 +708,7 @@ const OrdersPanel = ({ canManage }) => {
             id="producedQuantity"
             label={`Üretilen Miktar (${completingOrder?.product_unit || ''})`}
             type="number"
-            step="0.001"
+            step="any"
             min="0.001"
             required
             value={producedQuantity}

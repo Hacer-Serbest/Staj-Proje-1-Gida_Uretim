@@ -504,7 +504,7 @@ const OrdersPanel = ({ canCreate, canUpdateStatus }) => {
                     <Input
                       label={index === 0 ? 'Miktar' : undefined}
                       type="number"
-                      step="0.001"
+                      step="any"
                       min="0.001"
                       value={item.quantity}
                       onChange={(e) => updateItem(index, 'quantity', e.target.value)}
@@ -514,7 +514,7 @@ const OrdersPanel = ({ canCreate, canUpdateStatus }) => {
                     <Input
                       label={index === 0 ? 'Birim Fiyat (opsiyonel)' : undefined}
                       type="number"
-                      step="0.01"
+                      step="any"
                       min="0"
                       placeholder="Satış fiyatı"
                       value={item.unitPrice}
