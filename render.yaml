@@ -5,9 +5,8 @@ services:
     rootDir: backend
     plan: free
     region: frankfurt
-    buildCommand: npm install
+    buildCommand: npm install && npm run migrate
     startCommand: npm start
-    preDeployCommand: npm run migrate
     healthCheckPath: /api/health
     autoDeploy: true
     envVars:

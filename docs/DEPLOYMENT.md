@@ -16,7 +16,7 @@ Backend → **Render**, Frontend → **Vercel**, Veritabanı → **Render Manage
 3. **Apply** deyin. Render otomatik olarak:
    - `DATABASE_URL`'i veritabanından web servisine bağlar
    - `JWT_SECRET`'ı güvenli rastgele bir değerle üretir
-   - Her deploy öncesi `npm run migrate` çalıştırır (`preDeployCommand`)
+   - Her build'de `npm run migrate` çalıştırır (build adımının parçası — Render'ın ücretsiz planı ayrı bir `preDeployCommand` desteklemiyor)
 4. İlk deploy bitince servis URL'inizi not edin (örn. `https://gida-uretim-kontrol-backend.onrender.com`).
 5. `GET https://<backend-url>/api/health` adresinin `{"success":true,...}` döndürdüğünü doğrulayın.
 
@@ -63,7 +63,7 @@ Bu komut idempotenttir — aynı e-posta ile tekrar çalıştırılırsa hiçbir
 ## Sonraki Deploy'lar
 
 Her ikisi de `main` branch'e push'ta otomatik deploy olur:
-- Render: `preDeployCommand` sayesinde yeni migration dosyaları otomatik uygulanır.
+- Render: `buildCommand`'ın parçası olan `npm run migrate` sayesinde yeni migration dosyaları otomatik uygulanır.
 - Vercel: her push'ta yeniden build alır.
 
 Manuel migration/seed gerekirse Render Shell'den `npm run migrate` veya `npm run seed` (yalnızca staging/demo ortamlarında) çalıştırılabilir.
