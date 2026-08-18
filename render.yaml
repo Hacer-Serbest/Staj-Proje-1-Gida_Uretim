@@ -32,3 +32,4 @@ databases:
     plan: free
     databaseName: gida_uretim_kontrol
     user: gida_uretim_kontrol
+    
